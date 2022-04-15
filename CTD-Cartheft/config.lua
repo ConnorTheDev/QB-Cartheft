@@ -1,6 +1,6 @@
 Config = Config or {}
 
-Config.Payment = 1500
+Config.Payment = math.random(1500, 3000)
 
 Config.marker = vector3(1208.6, -3114.88, 4.56)
 
