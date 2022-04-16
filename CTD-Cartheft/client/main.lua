@@ -1,8 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local InService = false
-local CartheftStart = 0
-local IsInCoolDown = 0
-local CoolDownTime = 1800 * 1000 --30 mins
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
@@ -13,7 +10,6 @@ end)
 Citizen.CreateThread(function()
     while true do
       Citizen.Wait(0)
-      if CartheftStart == 0 then
       local InRange = false
       local pedCoords = GetEntityCoords(PlayerPedId())
       local distance = #(pedCoords - vector3(Config.marker.x,Config.marker.y,Config.marker.z))
@@ -22,18 +18,17 @@ Citizen.CreateThread(function()
         DrawMarker(23, Config.marker.x, Config.marker.y, Config.marker.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 3.5, 144, 128, 0, 100, false, true, 2, nil, nil, false)
         DrawText3D(Config.marker.x, Config.marker.y, Config.marker.z+1, "[E] Open Menu")
       if IsControlJustReleased(0, 51) then
-        if IsInCoolDown == 0 then
         OpenMenu()
-        else
-          QBCore.Functions.Notify('Cooldown', 'error')
         end
-      end
     end
     if not InRange then
       Wait(3000)
     end
   end
-end
+end)
+
+RegisterNetEvent("CTD-Cartheft:client:Test", function(coords)
+  TriggerServerEvent("CTD-Cartheft:checkcooldown")
 end)
 
 RegisterNetEvent("CTD-Cartheft:client:SpawnCar", function(coords)
@@ -50,9 +45,9 @@ RegisterNetEvent("CTD-Cartheft:client:SpawnCar", function(coords)
         SmashVehicleWindow(veh, true, 0)
         TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
     end, coords, true)
-    CartheftStart = 1
     ShowBlip()
     TriggerEvent("CTD-Cartheft:Npc")
+    TriggerServerEvent("CTD-Cartheft:setcooldown")
     TriggerEvent("CTD-Cartheft:client:Email")
     InService = true
     Citizen.Wait(78000)
@@ -150,10 +145,4 @@ function JobDone()
   QBCore.Functions.Notify('Job Done', 'primary')
   InService = false
   CartheftStart = 0
-end
-
-function CoolDown()
-  IsInCoolDown = 1
-	Citizen.Wait(CoolDownTime)
-  IsInCoolDown = 0
 end
