@@ -26,7 +26,7 @@ function OpenMenu()
         header = "Start The Job",
         txt = "",
         params = {
-          event = 'CTD-Cartheft:client:SpawnCar',
+          event = 'CTD-Cartheft:client:Test',
         }
       },
       {
