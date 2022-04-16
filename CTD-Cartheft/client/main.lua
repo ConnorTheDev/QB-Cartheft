@@ -33,6 +33,7 @@ Citizen.CreateThread(function()
       Wait(3000)
     end
   end
+end
 end)
 
 RegisterNetEvent("CTD-Cartheft:client:SpawnCar", function(coords)
