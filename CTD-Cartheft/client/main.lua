@@ -1,5 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local InService = false
+local CartheftStart = 0
 local IsInCoolDown = 0
 local CoolDownTime = 1800 * 1000 --30 mins
 
@@ -12,6 +13,7 @@ end)
 Citizen.CreateThread(function()
     while true do
       Citizen.Wait(0)
+      if CartheftStart == 0 then
       local InRange = false
       local pedCoords = GetEntityCoords(PlayerPedId())
       local distance = #(pedCoords - vector3(Config.marker.x,Config.marker.y,Config.marker.z))
@@ -47,6 +49,7 @@ RegisterNetEvent("CTD-Cartheft:client:SpawnCar", function(coords)
         SmashVehicleWindow(veh, true, 0)
         TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
     end, coords, true)
+    CartheftStart = 1
     ShowBlip()
     TriggerEvent("CTD-Cartheft:Npc")
     TriggerEvent("CTD-Cartheft:client:Email")
@@ -145,6 +148,7 @@ function JobDone()
   TriggerServerEvent("CTD-Cartheft:Payment")
   QBCore.Functions.Notify('Job Done', 'primary')
   InService = false
+  CartheftStart = 0
 end
 
 function CoolDown()
