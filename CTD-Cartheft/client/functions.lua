@@ -1,6 +1,5 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 
---3D TEST CODE
 function DrawText3D(x, y, z, text)
 	SetTextScale(0.35, 0.35)
     SetTextFont(4)
@@ -39,7 +38,6 @@ function OpenMenu()
 })
 end
 
---SHOWS WHERE TO DRIVE TO.
 function SetRoute()
     local ped = PlayerPedId()
     local pos = GetEntityCoords(ped)
@@ -81,7 +79,6 @@ function SetRoute1()
   QBCore.Functions.Notify('Follow gps for next step', 'primary')
 end
 
---code to show blip on map when the job has started
 function ShowBlip()
     if Blip ~= nil then
       RemoveBlip(Blip)
