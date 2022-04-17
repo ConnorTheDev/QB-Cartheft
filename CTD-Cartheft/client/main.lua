@@ -57,7 +57,7 @@ RegisterNetEvent("CTD-Cartheft:client:SpawnCar", function(coords)
 end)
 
 RegisterNetEvent("CTD-Cartheft:client:RepairCar")
-AddEventHandler("CTD-Cartheft:client:RepairCar", function(pedCoords)--remove the loop
+AddEventHandler("CTD-Cartheft:client:RepairCar", function(pedCoords)
   while InService do
     Citizen.Wait(0)
     local pedCoords = GetEntityCoords(PlayerPedId())
