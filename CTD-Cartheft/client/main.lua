@@ -1,5 +1,6 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local InService = false
+local IsCarRepaired = false
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
@@ -50,6 +51,7 @@ RegisterNetEvent("CTD-Cartheft:client:SpawnCar", function(coords)
     TriggerServerEvent("CTD-Cartheft:setcooldown")
     TriggerEvent("CTD-Cartheft:client:Email")
     InService = true
+    IsCarRepaired = true	
     Citizen.Wait(78000)
     RemoveBlip(Blip)
     SetRoute1()
@@ -58,7 +60,7 @@ end)
 
 RegisterNetEvent("CTD-Cartheft:client:RepairCar")
 AddEventHandler("CTD-Cartheft:client:RepairCar", function(pedCoords)
-  while InService do
+  while IsCarRepaired do
     Citizen.Wait(0)
     local pedCoords = GetEntityCoords(PlayerPedId())
     local distance = #(pedCoords - vector3(Config.Repair.x,Config.Repair.y,Config.Repair.z))
@@ -93,6 +95,7 @@ AddEventHandler("CTD-Cartheft:client:RepairCarTime", function()
     SetVehicleFixed(Veh)
 	  SetVehicleDirtLevel(Veh, 0.0)
     SetVehiclePetrolTankHealth(Veh, 4000.0)
+    IsCarRepaired = false
     TriggerEvent("CTD-Cartheft:client:finish")
     end)
 end)
