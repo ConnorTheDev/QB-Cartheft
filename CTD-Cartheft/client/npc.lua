@@ -1,4 +1,4 @@
-RegisterNetEvent("CTD-Cartheft:Npc")
+RegisterNetEvent("CTD-Cartheft:Npc") --update
 AddEventHandler("CTD-Cartheft:Npc", function()
     RequestModel(-449965460)
     while not HasModelLoaded(-449965460) do
