@@ -25,7 +25,7 @@ function OpenMenu()
         header = "Start The Job",
         txt = "",
         params = {
-          event = 'CTD-Cartheft:client:Test',
+          event = 'CTD-Cartheft:client:CoolDown',
         }
       },
       {
@@ -79,21 +79,6 @@ function SetRoute1()
   QBCore.Functions.Notify('Follow gps for next step', 'primary')
 end
 
-function ShowBlip()
-    if Blip ~= nil then
-      RemoveBlip(Blip)
-  end
-  Blip = AddBlipForCoord(Config.spawner.x, Config.spawner.y, Config.spawner.z)
-        SetBlipSprite(Blip, 161)
-        SetBlipDisplay(Blip, 4)
-        SetBlipScale(Blip, 3.0)
-        SetBlipAsShortRange(Blip, true)
-        SetBlipColour(Blip, 1)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentSubstringPlayerName("Car")
-        EndTextCommandSetBlipName(Blip)
-end
-
 function InCar()
   local ped = PlayerPedId()
   local veh = GetEntityModel(GetVehiclePedIsIn(ped))
@@ -106,3 +91,16 @@ function InCar()
   end
   return retval
 end
+
+RegisterNetEvent('CTD-Cartheft:client:playerInVehicle', function()
+    CreateThread(function()
+        while true do
+            Wait(500)
+            if InCar() then
+              SetRoute1()
+              RemoveBlip(Blip)
+              break
+            end
+        end
+    end)
+end)
