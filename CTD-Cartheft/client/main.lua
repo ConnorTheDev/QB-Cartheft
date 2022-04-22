@@ -1,6 +1,7 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local InService = false
 local IsCarRepaired = false
+number = math.random(1,#Config.CarSpawns)
 
 RegisterNetEvent('QBCore:Client:OnPlayerLoaded')
 AddEventHandler('QBCore:Client:OnPlayerLoaded', function()
@@ -28,12 +29,13 @@ Citizen.CreateThread(function()
   end
 end)
 
-RegisterNetEvent("CTD-Cartheft:client:Test", function(coords)
+RegisterNetEvent("CTD-Cartheft:client:CoolDown", function(coords)
   TriggerServerEvent("CTD-Cartheft:checkcooldown")
 end)
 
 RegisterNetEvent("CTD-Cartheft:client:SpawnCar", function(coords)
-    local coords = Config.spawner
+  local ped = PlayerPedId()
+  local coords = Config.CarSpawns[number].car
     local veh = Config.Vehicles[math.random(#Config.Vehicles)].model
       QBCore.Functions.SpawnVehicle(veh, function(veh)
         SetVehicleNumberPlateText(veh, "CTD"..tostring(math.random(1000, 9999)))
@@ -46,16 +48,40 @@ RegisterNetEvent("CTD-Cartheft:client:SpawnCar", function(coords)
         SmashVehicleWindow(veh, true, 0)
         TriggerEvent("vehiclekeys:client:SetOwner", QBCore.Functions.GetPlate(veh))
     end, coords, true)
-    ShowBlip()
-    TriggerEvent("CTD-Cartheft:Npc")
-    TriggerServerEvent("CTD-Cartheft:setcooldown")
-    TriggerEvent("CTD-Cartheft:client:Email")
-    InService = true
-    IsCarRepaired = true	
-    Citizen.Wait(78000)
-    RemoveBlip(Blip)
-    SetRoute1()
-    TriggerEvent("CTD-Cartheft:client:RepairCar")
+  ShowBlip()
+  TriggerEvent("CTD-Cartheft:Npc")
+  TriggerServerEvent("CTD-Cartheft:setcooldown")
+  TriggerEvent("CTD-Cartheft:client:playerInVehicle")
+  InService = true
+  IsCarRepaired = true
+  TriggerEvent("CTD-Cartheft:client:RepairCar")
+end)
+
+RegisterNetEvent("CTD-Cartheft:Npc")
+AddEventHandler("CTD-Cartheft:Npc", function()
+    RequestModel(-449965460)
+    while not HasModelLoaded(-449965460) do
+        Citizen.Wait(1)
+    end
+    playerCoords = GetEntityCoords(PlayerPedId())
+    for i = 1, #Config.CarSpawns[number].npc do
+      local _,guards = AddRelationshipGroup('enemy')
+      peds = GetEntityModel('RampGang')
+      ped = CreatePed(5, -449965460, Config.CarSpawns[number].npc[i].x, Config.CarSpawns[number].npc[i].y, Config.CarSpawns[number].npc[i].z, true, true)
+      SetPedRelationshipGroupHash(ped, guards )
+      Citizen.Wait(1000)
+      TaskCombatPed(ped, GetPlayerPed(-1))
+      SetRelationshipBetweenGroups(5, guards, GetHashKey("PLAYER"))
+      SetPedCombatAttributes(ped, 0, true)
+      SetPedFleeAttributes(ped, 0, 0)
+      SetPedDiesWhenInjured(ped, false)
+      SetPedArmour(ped, 50)
+      SetPedAlertness(ped, 1)
+      SetPedAccuracy(ped, 75)
+      GiveWeaponToPed(ped, "weapon_pistol", 900, false, true)
+      SetPedCombatRange(ped, 0)
+      SetPedDropsWeaponsWhenDead(ped, false)
+    end
 end)
 
 RegisterNetEvent("CTD-Cartheft:client:RepairCar")
@@ -65,7 +91,7 @@ AddEventHandler("CTD-Cartheft:client:RepairCar", function(pedCoords)
     local pedCoords = GetEntityCoords(PlayerPedId())
     local distance = #(pedCoords - vector3(Config.Repair.x,Config.Repair.y,Config.Repair.z))
     if InCar() then
-    if(distance < 2) then
+    if(distance < 20) then
       DrawMarker(23, Config.Repair.x, Config.Repair.y, Config.Repair.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0, 3.5, 144, 128, 0, 100, false, true, 2, nil, nil, false)
       DrawText3D(Config.Repair.x, Config.Repair.y, Config.Repair.z+1, "[E] Repair")
     end
@@ -122,24 +148,6 @@ AddEventHandler('CTD-Cartheft:client:finish', function()
   end
 end)
 
-RegisterNetEvent('CTD-Cartheft:client:Email', function(amount)
-  SetTimeout(math.random(2500, 4000), function()
-      local gender = "Mr."
-      if QBCore.Functions.GetPlayerData().charinfo.gender == 1 then
-          gender = "Mrs."
-      end
-      local charinfo = QBCore.Functions.GetPlayerData().charinfo
-      TriggerServerEvent('qb-phone:server:sendNewMail', {
-          sender = "ConnorTheDev",
-          subject = "Job",
-          message = "Dear " .. gender .. " " .. charinfo.lastname .. ", Go pick up the car, I will update your gps as you go. Be careful as the car is damaged so you will need to get it repaired.. GOOD LUCK",
-          button = {}
-      })
-  end)
-end)
-
-
---Functions that's needed in here
 function JobDone()
   RemoveBlip(DeliveryBlip)
   SetEntityAsNoLongerNeeded(veh)
@@ -147,5 +155,19 @@ function JobDone()
   TriggerServerEvent("CTD-Cartheft:Payment")
   QBCore.Functions.Notify('Job Done', 'primary')
   InService = false
-  CartheftStart = 0
+end
+
+function ShowBlip()
+  if Blip ~= nil then
+    RemoveBlip(Blip)
+  end
+  Blip = AddBlipForCoord(Config.CarSpawns[number].car.x, Config.CarSpawns[number].car.y, Config.CarSpawns[number].car.z)
+      SetBlipSprite(Blip, 161)
+      SetBlipDisplay(Blip, 4)
+      SetBlipScale(Blip, 3.0)
+      SetBlipAsShortRange(Blip, true)
+      SetBlipColour(Blip, 1)
+      BeginTextCommandSetBlipName("STRING")
+      AddTextComponentSubstringPlayerName("Car")
+      EndTextCommandSetBlipName(Blip)
 end
