@@ -29,7 +29,7 @@ Citizen.CreateThread(function()
   end
 end)
 
-RegisterNetEvent("CTD-Cartheft:client:CoolDown", function(coords)
+RegisterNetEvent("CTD-Cartheft:client:CoolDown", function()
   TriggerServerEvent("CTD-Cartheft:checkcooldown")
 end)
 
